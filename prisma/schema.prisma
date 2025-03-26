@@ -1,0 +1,149 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model user {
+  id        Int       @id @default(autoincrement())
+  name      String
+  phone     String    @unique
+  email     String    @unique
+  address   String    @db.LongText
+  role      String
+  password  String?
+  otp       String?   // OTP for login
+  otpExpiry DateTime? // OTP expiration timestamp
+  bookings  booking[] // User can have many bookings
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+
+model admin {
+  id        Int      @id @default(autoincrement())
+  name      String
+  phone     String
+  email     String   @unique
+  address   String   @db.LongText
+  role      String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model city {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  areas     area[]   // One city can have many areas
+  image     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model area {
+  id        Int      @id @default(autoincrement())
+  name      String   
+  city_id   Int      // Foreign key to city
+  city      city     @relation(fields: [city_id], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, city_id]) // Ensure area names are unique within a city
+}
+
+model bike {
+  id                Int       @id @default(autoincrement())
+  name              String
+  image             String
+  type              String
+  city              String
+  area              String
+  day_price         Int
+  seven_day_price   Int
+  fifteen_day_price Int
+  month_price       Int
+  limit             Int
+  extra             Int
+  deposit           Int
+  make_year         Int
+  bookings          booking[] // One bike can have many bookings
+  serial            String
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model payment {
+  id         Int      @id @default(autoincrement())
+  booking_id Int      @unique // Make it unique for one-to-one relation
+  booking    booking  @relation(fields: [booking_id], references: [id])
+  trx_id     String   @unique
+  method     String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+
+enum Status {
+  pending
+  active
+  completed
+  cancelled
+}
+
+model booking {
+  id         Int      @id @default(autoincrement())
+  bike_id    Int
+  bike       bike     @relation(fields: [bike_id], references: [id])
+  user_id    Int
+  user       user     @relation(fields: [user_id], references: [id])
+  payment    payment?
+  start_time DateTime
+  end_time   DateTime
+  status     Status   @default(pending)
+  amount     Int
+  coupon_id  Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+enum OfferStatus {
+  active
+  inactive
+  expired
+}
+
+model offer {
+  id           Int         @id @default(autoincrement())
+  title        String
+  description  String
+  amount       Int
+  above_amount Int
+  image        String
+  coupon       String
+  status       OfferStatus @default(active)
+  start_date   DateTime
+  end_date     DateTime
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model service {
+  id           Int         @id @default(autoincrement())
+  title        String
+  description  String
+  image        String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
