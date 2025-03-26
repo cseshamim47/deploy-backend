@@ -28,8 +28,8 @@ export class AuthService {
   // Send OTP via AiSensy
   async sendOTP(phone: string) {
     // return { message: 'OTP sent successfully' };
-    phone = `(+88)(${phone})`;
-    // phone = '(+88)(01878042329)';
+    phone = `(+91)(${phone})`;
+    // phone = '(+91)(01878042329)';
     //console.log(phone);
     const otp = this.generateOTP();
     const hashedOtp = await bcrypt.hash(otp, 10);
@@ -121,9 +121,9 @@ export class AuthService {
     lastName: string,
     email: string,
   ) {
-    phone = `(+88)(${phone})`;
+    phone = `(+91)(${phone})`;
     // console.log(phone);
-    // phone = '(+88)(01878042329)';
+    // phone = '(+91)(01878042329)';
     // console.log('verify: ', phone);
     // console.log(otp);
 
